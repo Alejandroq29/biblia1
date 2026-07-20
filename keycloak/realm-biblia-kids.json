@@ -1,0 +1,108 @@
+{
+  "realm": "biblia-kids",
+  "enabled": true,
+  "displayName": "Biblia Kids",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "biblia-kids-api",
+      "name": "Biblia Kids API",
+      "description": "Cliente OIDC confidencial del backend Biblia Kids con Authorization Code y PKCE",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "biblia-kids-dev-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*"
+      },
+      "defaultClientScopes": [
+        "openid",
+        "email",
+        "profile",
+        "roles",
+        "web-origins",
+        "acr"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "participante",
+      "email": "participante@biblia-kids.local",
+      "firstName": "Mateo",
+      "lastName": "Vera",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "biblia-kids123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-biblia-kids"
+      ]
+    },
+    {
+      "username": "educador",
+      "email": "educador@biblia-kids.local",
+      "firstName": "Lucía",
+      "lastName": "Paredes",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "biblia-kids123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-biblia-kids"
+      ]
+    },
+    {
+      "username": "administrador",
+      "email": "administrador@biblia-kids.local",
+      "firstName": "Sofía",
+      "lastName": "Córdova",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "biblia-kids123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-biblia-kids"
+      ]
+    }
+  ]
+}
