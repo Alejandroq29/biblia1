@@ -4,6 +4,8 @@ import { prisma } from '@/database/client';
 import { ConflictError } from '@/errors/conflict-error';
 import { NotFoundError } from '@/errors/not-found-error';
 import { normalizePagination } from '@/helper/pagination';
+import { cacheDelete, cacheDeleteByPrefix, cacheGet, cacheSet } from '@/lib/cache/redis';
+import { logger } from '@/lib/logger';
 import type {
 	CreateAttempt,
 	CreateGame,
@@ -71,7 +73,39 @@ const gameSelect = {
 	questions: { select: questionSelect, orderBy: { questionOrder: 'asc' as const } },
 } satisfies Prisma.BibliaGameSelect;
 
+const STORY_CACHE_TTL_SECONDS = 60;
+const STORY_LIST_CACHE_PREFIX = 'biblia-kids:stories:list:';
+const STORY_CACHE_KEY_PREFIX = 'biblia-kids:stories:';
+
+const buildStoryListCacheKey = (filters: StoryQuery): string => {
+	const normalized = {
+		page: Number(filters.page ?? 1),
+		pageSize: Number(filters.pageSize ?? 20),
+		search: filters.search ?? '',
+		minAge: filters.minAge ?? '',
+		maxAge: filters.maxAge ?? '',
+	};
+	return `${STORY_LIST_CACHE_PREFIX}${JSON.stringify(normalized)}`;
+};
+
+const buildStoryCacheKey = (storyId: string): string => `${STORY_CACHE_KEY_PREFIX}${storyId}`;
+
 export const getStories = async (filters: StoryQuery) => {
+	const cacheKey = buildStoryListCacheKey(filters);
+	const cached = await cacheGet<{
+		data: Array<unknown>;
+		meta: { page: number; pageSize: number; total: number; totalPages: number };
+	}>(cacheKey);
+
+	if (cached) {
+		logger.info(
+			{ cacheKey, operation: 'getStories', cacheHit: true },
+			'Biblia Kids story list cache hit',
+		);
+		return cached;
+	}
+
+	const start = Date.now();
 	const { skip, take, meta } = normalizePagination(filters);
 	const where: Prisma.BibliaStoryWhereInput = {
 		status: 'ACTIVE',
@@ -98,10 +132,31 @@ export const getStories = async (filters: StoryQuery) => {
 		prisma.bibliaStory.count({ where }),
 	]);
 
-	return { data: stories, meta: meta(total) };
+	const response = { data: stories, meta: meta(total) };
+	await cacheSet(cacheKey, response, STORY_CACHE_TTL_SECONDS);
+	logger.info(
+		{
+			cacheKey,
+			durationMs: Date.now() - start,
+			operation: 'getStories',
+			resultCount: stories.length,
+		},
+		'Biblia Kids story list generated and cached',
+	);
+
+	return response;
 };
 
 export const getStory = async (storyId: string) => {
+	const cacheKey = buildStoryCacheKey(storyId);
+	const cached = await cacheGet<typeof storySelect>(cacheKey);
+
+	if (cached) {
+		logger.info({ cacheKey, operation: 'getStory', cacheHit: true }, 'Biblia Kids story cache hit');
+		return cached;
+	}
+
+	const start = Date.now();
 	const story = await prisma.bibliaStory.findFirst({
 		where: { id: storyId, status: 'ACTIVE', deletedAt: null },
 		select: storySelect,
@@ -110,6 +165,12 @@ export const getStory = async (storyId: string) => {
 	if (!story) {
 		throw new NotFoundError('La historia bíblica solicitada no existe.');
 	}
+
+	await cacheSet(cacheKey, story, STORY_CACHE_TTL_SECONDS);
+	logger.info(
+		{ cacheKey, durationMs: Date.now() - start, operation: 'getStory' },
+		'Biblia Kids story retrieved and cached',
+	);
 
 	return story;
 };
@@ -120,7 +181,7 @@ export const createStory = async (data: CreateStory) => {
 	}
 
 	try {
-		return await prisma.$transaction(async transaction => {
+		const story = await prisma.$transaction(async transaction => {
 			const levels = await transaction.bibliaLevel.findMany({
 				where: { id: { in: data.levelIds }, status: 'ACTIVE', deletedAt: null },
 				select: { id: true },
@@ -141,6 +202,9 @@ export const createStory = async (data: CreateStory) => {
 				select: storySelect,
 			});
 		});
+
+		await cacheDeleteByPrefix(STORY_LIST_CACHE_PREFIX);
+		return story;
 	} catch (error) {
 		if (isUniqueError(error)) {
 			throw new ConflictError('Ya existe una historia con ese slug.');
@@ -157,7 +221,7 @@ export const updateStory = async (storyId: string, data: UpdateStory) => {
 	}
 
 	try {
-		return await prisma.$transaction(async transaction => {
+		const story = await prisma.$transaction(async transaction => {
 			if (data.levelIds) {
 				const levels = await transaction.bibliaLevel.findMany({
 					where: { id: { in: data.levelIds }, status: 'ACTIVE', deletedAt: null },
@@ -185,6 +249,10 @@ export const updateStory = async (storyId: string, data: UpdateStory) => {
 				select: storySelect,
 			});
 		});
+
+		await cacheDeleteByPrefix(STORY_LIST_CACHE_PREFIX);
+		await cacheDelete(buildStoryCacheKey(storyId));
+		return story;
 	} catch (error) {
 		if (isUniqueError(error)) throw new ConflictError('Ya existe una historia con ese slug.');
 		throw error;
@@ -197,6 +265,8 @@ export const deactivateStory = async (storyId: string): Promise<void> => {
 		data: { status: 'INACTIVE', deletedAt: new Date() },
 	});
 	if (result.count === 0) throw new NotFoundError('La historia bíblica solicitada no existe.');
+	await cacheDeleteByPrefix(STORY_LIST_CACHE_PREFIX);
+	await cacheDelete(buildStoryCacheKey(storyId));
 };
 
 export const getLevels = async (filters: LevelQuery) => {

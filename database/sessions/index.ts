@@ -25,6 +25,11 @@ export const findActive = async (sessionId: string) =>
 		},
 	});
 
+export const findById = async (sessionId: string) =>
+	prisma.userSession.findUnique({
+		where: { id: sessionId },
+	});
+
 export const updateTokens = async (sessionId: string, sealedTokens: string) =>
 	prisma.userSession.update({
 		where: { id: sessionId },

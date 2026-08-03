@@ -9,7 +9,7 @@
       "Bash(docker info *)",
       "Bash(break)",
       "Bash(lsof -nP -iTCP:8080 -sTCP:LISTEN)",
-      "Bash(curl -s http://localhost:8081/realms/canchago/.well-known/openid-configuration)",
+      "Bash(curl -s http://localhost:8081/realms/Biblia1/.well-known/openid-configuration)",
       "Bash(npx --yes json)",
       "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);console.log\\('issuer            :',j.issuer\\);console.log\\('authorization_url:',j.authorization_endpoint\\);console.log\\('token_url        :',j.token_endpoint\\);console.log\\('jwks_url         :',j.jwks_uri\\);console.log\\('revocation_url   :',j.revocation_endpoint\\);console.log\\('end_session_url  :',j.end_session_endpoint\\);console.log\\('pkce_methods     :',j.code_challenge_methods_supported\\);}\\)\")",
       "Bash(node -e ' *)",
@@ -18,7 +18,7 @@
       "Bash(grep -v \"^\\\\$\")",
       "Bash(yarn dev *)",
       "Bash(curl -s -o /dev/null -w '' http://localhost:3000/api/auth/session)",
-      "Bash(bash /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-canchago/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/flow.sh)",
+      "Bash(bash /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-Biblia1/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/flow.sh)",
       "Bash(python3 -)",
       "Bash(yarn asignar-rol *)",
       "Bash(grep -v '^\\\\$')",
@@ -27,15 +27,15 @@
       "Bash(yarn build *)",
       "Bash(kill %1)",
       "Bash(pkill -f \"next dev\")",
-      "Bash(curl -s -i -H \"Origin: http://localhost:3000\" \"http://localhost:8081/realms/canchago/protocol/openid-connect/auth?response_type=code&client_id=canchago-api\")",
-      "Bash(curl -s http://localhost:3000/api/docs/spec -o /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-canchago/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/spec.json)",
-      "Bash(curl -s http://localhost:3000/api/docs/spec -o /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-canchago/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/spec2.json)",
-      "Bash(curl -s http://localhost:3000/api/docs/spec -o /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-canchago/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/spec3.json)",
+      "Bash(curl -s -i -H \"Origin: http://localhost:3000\" \"http://localhost:8081/realms/Biblia1/protocol/openid-connect/auth?response_type=code&client_id=canchago-api\")",
+      "Bash(curl -s http://localhost:3000/api/docs/spec -o /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-Biblia1/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/spec.json)",
+      "Bash(curl -s http://localhost:3000/api/docs/spec -o /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-Biblia1/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/spec2.json)",
+      "Bash(curl -s http://localhost:3000/api/docs/spec -o /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-Biblia1/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/spec3.json)",
       "Bash(lsof -nP -iTCP:3000 -sTCP:LISTEN)",
       "Bash(npx tsx --env-file=.env -e ' *)",
       "Bash(npx vitest *)",
       "Bash(curl -s -o /dev/null http://localhost:3000/api/auth/session)",
-      "Bash(bash /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-canchago/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/flow2.sh)"
+      "Bash(bash /private/tmp/claude-501/-Users-pleones11-Documents-UEA-PROYECTOS-Biblia1/2c10bb3c-afd9-4a25-9bc5-b7fc7b1bcd25/scratchpad/flow2.sh)"
     ]
   },
   "hooks": {
