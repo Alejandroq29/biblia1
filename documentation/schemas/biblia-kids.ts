@@ -326,3 +326,54 @@ registry.registerPath({
 		...errorResponses,
 	},
 });
+
+const BookSchema = z.object({
+  id: z.string().uuid(),
+  code: z.string(),
+  title: z.string(),
+  testament: z.string().nullable(),
+  summary: z.string().nullable(),
+  status: z.enum(['ACTIVE', 'INACTIVE']),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+const ChapterSchema = z.object({ id: z.string().uuid(), bookId: z.string().uuid(), number: z.number(), title: z.string().nullable(), summary: z.string().nullable() });
+const VerseSchema = z.object({ id: z.string().uuid(), chapterId: z.string().uuid(), number: z.number(), text: z.string(), notes: z.string().nullable() });
+const FavoriteSchema = z.object({ id: z.string().uuid(), resource: z.string(), resourceId: z.string().uuid(), createdAt: z.string().datetime() });
+const ReadingPlanSchema = z.object({ id: z.string().uuid(), userId: z.string().uuid(), name: z.string(), items: z.any(), startDate: z.string().nullable(), endDate: z.string().nullable(), status: z.enum(['ACTIVE', 'INACTIVE']), createdAt: z.string().datetime() });
+
+registry.register('BibliaKidsBook', BookSchema);
+registry.register('BibliaKidsChapter', ChapterSchema);
+registry.register('BibliaKidsVerse', VerseSchema);
+registry.register('BibliaKidsFavorite', FavoriteSchema);
+registry.register('BibliaKidsReadingPlan', ReadingPlanSchema);
+
+const bookRef = { $ref: '#/components/schemas/BibliaKidsBook' };
+const chapterRef = { $ref: '#/components/schemas/BibliaKidsChapter' };
+const verseRef = { $ref: '#/components/schemas/BibliaKidsVerse' };
+const favoriteRef = { $ref: '#/components/schemas/BibliaKidsFavorite' };
+const readingPlanRef = { $ref: '#/components/schemas/BibliaKidsReadingPlan' };
+
+registry.registerPath({ method: 'get', path: '/biblia-kids/books', tags: ['Biblia Kids'], security, parameters: pagination, responses: { 200: { description: 'Libros', content: { 'application/json': { schema: list(bookRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'post', path: '/biblia-kids/books', tags: ['Biblia Kids'], security, requestBody: { required: true, content: { 'application/json': { schema: bookRef } } }, responses: { 201: { description: 'Libro creado', content: { 'application/json': { schema: data(bookRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'get', path: '/biblia-kids/books/{bookId}', tags: ['Biblia Kids'], security, parameters: [id('bookId')], responses: { 200: { description: 'Libro', content: { 'application/json': { schema: data(bookRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'patch', path: '/biblia-kids/books/{bookId}', tags: ['Biblia Kids'], security, parameters: [id('bookId')], responses: { 200: { description: 'Libro actualizado', content: { 'application/json': { schema: data(bookRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'delete', path: '/biblia-kids/books/{bookId}', tags: ['Biblia Kids'], security, parameters: [id('bookId')], responses: { 204: { description: 'Libro desactivado' }, ...errorResponses } });
+
+registry.registerPath({ method: 'get', path: '/biblia-kids/chapters', tags: ['Biblia Kids'], security, parameters: [{ name: 'bookId', in: 'query', schema: { type: 'string', format: 'uuid' } }], responses: { 200: { description: 'Capítulos', content: { 'application/json': { schema: { type: 'array', items: chapterRef } } } }, ...errorResponses } });
+registry.registerPath({ method: 'post', path: '/biblia-kids/chapters', tags: ['Biblia Kids'], security, requestBody: { required: true, content: { 'application/json': { schema: chapterRef } } }, responses: { 201: { description: 'Capítulo creado', content: { 'application/json': { schema: data(chapterRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'patch', path: '/biblia-kids/chapters/{chapterId}', tags: ['Biblia Kids'], security, parameters: [id('chapterId')], responses: { 200: { description: 'Capítulo actualizado', content: { 'application/json': { schema: data(chapterRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'delete', path: '/biblia-kids/chapters/{chapterId}', tags: ['Biblia Kids'], security, parameters: [id('chapterId')], responses: { 204: { description: 'Capítulo desactivado' }, ...errorResponses } });
+
+registry.registerPath({ method: 'get', path: '/biblia-kids/verses', tags: ['Biblia Kids'], security, parameters: [{ name: 'chapterId', in: 'query', schema: { type: 'string', format: 'uuid' } }], responses: { 200: { description: 'Versículos', content: { 'application/json': { schema: { type: 'array', items: verseRef } } } }, ...errorResponses } });
+registry.registerPath({ method: 'post', path: '/biblia-kids/verses', tags: ['Biblia Kids'], security, requestBody: { required: true, content: { 'application/json': { schema: verseRef } } }, responses: { 201: { description: 'Versículo creado', content: { 'application/json': { schema: data(verseRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'patch', path: '/biblia-kids/verses/{verseId}', tags: ['Biblia Kids'], security, parameters: [id('verseId')], responses: { 200: { description: 'Versículo actualizado', content: { 'application/json': { schema: data(verseRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'delete', path: '/biblia-kids/verses/{verseId}', tags: ['Biblia Kids'], security, parameters: [id('verseId')], responses: { 204: { description: 'Versículo desactivado' }, ...errorResponses } });
+
+registry.registerPath({ method: 'get', path: '/biblia-kids/favorites', tags: ['Biblia Kids'], security, responses: { 200: { description: 'Favoritos del usuario', content: { 'application/json': { schema: { type: 'array', items: favoriteRef } } } }, ...errorResponses } });
+registry.registerPath({ method: 'post', path: '/biblia-kids/favorites', tags: ['Biblia Kids'], security, requestBody: { required: true, content: { 'application/json': { schema: favoriteRef } } }, responses: { 201: { description: 'Favorito creado', content: { 'application/json': { schema: data(favoriteRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'delete', path: '/biblia-kids/favorites', tags: ['Biblia Kids'], security, requestBody: { required: true, content: { 'application/json': { schema: favoriteRef } } }, responses: { 204: { description: 'Favorito eliminado' }, ...errorResponses } });
+
+registry.registerPath({ method: 'get', path: '/biblia-kids/reading-plans', tags: ['Biblia Kids'], security, responses: { 200: { description: 'Planes de lectura del usuario', content: { 'application/json': { schema: { type: 'array', items: readingPlanRef } } } }, ...errorResponses } });
+registry.registerPath({ method: 'post', path: '/biblia-kids/reading-plans', tags: ['Biblia Kids'], security, requestBody: { required: true, content: { 'application/json': { schema: readingPlanRef } } }, responses: { 201: { description: 'Plan de lectura creado', content: { 'application/json': { schema: data(readingPlanRef) } } }, ...errorResponses } });
+registry.registerPath({ method: 'delete', path: '/biblia-kids/reading-plans', tags: ['Biblia Kids'], security, parameters: [{ name: 'planId', in: 'query', schema: { type: 'string', format: 'uuid' } }], responses: { 204: { description: 'Plan eliminado' }, ...errorResponses } });

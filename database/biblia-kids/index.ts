@@ -463,3 +463,147 @@ export const getProgress = async (userId: string, filters: ProgressQuery) => {
 	]);
 	return { data: progress, meta: meta(total) };
 };
+
+// --- Books / Chapters / Verses ---
+const BOOK_LIST_CACHE_PREFIX = 'biblia-kids:books:list:';
+const BOOK_CACHE_KEY_PREFIX = 'biblia-kids:books:';
+const BOOK_CACHE_TTL_SECONDS = 60;
+
+const buildBookListCacheKey = (filters: { page?: number; pageSize?: number; search?: string }) => {
+	const normalized = { page: Number(filters.page ?? 1), pageSize: Number(filters.pageSize ?? 20), search: filters.search ?? '' };
+	return `${BOOK_LIST_CACHE_PREFIX}${JSON.stringify(normalized)}`;
+};
+
+const buildBookCacheKey = (bookId: string) => `${BOOK_CACHE_KEY_PREFIX}${bookId}`;
+
+export const getBooks = async (filters: { page?: number; pageSize?: number; search?: string }) => {
+	const cacheKey = buildBookListCacheKey(filters);
+	const cached = await cacheGet<{ data: Array<unknown>; meta: { page: number; pageSize: number; total: number; totalPages: number } }>(cacheKey);
+	if (cached) return cached;
+
+	const { skip, take, meta } = normalizePagination(filters as any);
+	const where: Prisma.BibliaBookWhereInput = {
+		status: 'ACTIVE',
+		deletedAt: null,
+		...(filters.search ? { title: { contains: filters.search, mode: 'insensitive' } } : {}),
+	};
+	const [books, total] = await Promise.all([
+		prisma.bibliaBook.findMany({ where, skip, take, orderBy: { title: 'asc' }, select: { id: true, code: true, title: true, testament: true, summary: true, createdAt: true } }),
+		prisma.bibliaBook.count({ where }),
+	]);
+	const response = { data: books, meta: meta(total) };
+	await cacheSet(cacheKey, response, BOOK_CACHE_TTL_SECONDS);
+	return response;
+};
+
+export const getBook = async (bookId: string) => {
+	const cacheKey = buildBookCacheKey(bookId);
+	const cached = await cacheGet(cacheKey);
+	if (cached) return cached;
+	const book = await prisma.bibliaBook.findFirst({ where: { id: bookId, status: 'ACTIVE', deletedAt: null }, select: { id: true, code: true, title: true, testament: true, summary: true, createdAt: true } });
+	if (!book) throw new NotFoundError('El libro solicitado no existe.');
+	await cacheSet(cacheKey, book, BOOK_CACHE_TTL_SECONDS);
+	return book;
+};
+
+export const createBook = async (data: { code: string; title: string; testament?: string; summary?: string }) => {
+	try {
+		const book = await prisma.bibliaBook.create({ data, select: { id: true, code: true, title: true, testament: true, summary: true, createdAt: true } });
+		await cacheDeleteByPrefix(BOOK_LIST_CACHE_PREFIX);
+		return book;
+	} catch (error) {
+		if (isUniqueError(error)) throw new ConflictError('Ya existe un libro con ese código.');
+		throw error;
+	}
+};
+
+export const updateBook = async (bookId: string, data: Partial<Prisma.BibliaBookUpdateInput>) => {
+	const current = await prisma.bibliaBook.findFirst({ where: { id: bookId, deletedAt: null } });
+	if (!current) throw new NotFoundError('El libro solicitado no existe.');
+	try {
+		const book = await prisma.bibliaBook.update({ where: { id: bookId }, data, select: { id: true, code: true, title: true, testament: true, summary: true, updatedAt: true } });
+		await cacheDeleteByPrefix(BOOK_LIST_CACHE_PREFIX);
+		await cacheDelete(buildBookCacheKey(bookId));
+		return book;
+	} catch (error) {
+		if (isUniqueError(error)) throw new ConflictError('Ya existe un libro con ese código.');
+		throw error;
+	}
+};
+
+export const deactivateBook = async (bookId: string): Promise<void> => {
+	const result = await prisma.bibliaBook.updateMany({ where: { id: bookId, deletedAt: null }, data: { status: 'INACTIVE', deletedAt: new Date() } });
+	if (result.count === 0) throw new NotFoundError('El libro solicitado no existe.');
+	await cacheDeleteByPrefix(BOOK_LIST_CACHE_PREFIX);
+	await cacheDelete(buildBookCacheKey(bookId));
+};
+
+export const getChapters = async (bookId: string) => {
+	const chapters = await prisma.bibliaChapter.findMany({ where: { bookId, status: 'ACTIVE', deletedAt: null }, select: { id: true, number: true, title: true, summary: true, createdAt: true }, orderBy: { number: 'asc' } });
+	return chapters;
+};
+
+export const createChapter = async (bookId: string, data: { number: number; title?: string; summary?: string }) => {
+	const book = await prisma.bibliaBook.findFirst({ where: { id: bookId, status: 'ACTIVE', deletedAt: null }, select: { id: true } });
+	if (!book) throw new NotFoundError('El libro solicitado no existe.');
+	return prisma.bibliaChapter.create({ data: { bookId, ...data }, select: { id: true, number: true, title: true } });
+};
+
+export const updateChapter = async (chapterId: string, data: Partial<Prisma.BibliaChapterUpdateInput>) => {
+	const current = await prisma.bibliaChapter.findFirst({ where: { id: chapterId, deletedAt: null } });
+	if (!current) throw new NotFoundError('El capítulo solicitado no existe.');
+	return prisma.bibliaChapter.update({ where: { id: chapterId }, data, select: { id: true, number: true, title: true } });
+};
+
+export const deactivateChapter = async (chapterId: string): Promise<void> => {
+	const result = await prisma.bibliaChapter.updateMany({ where: { id: chapterId, deletedAt: null }, data: { status: 'INACTIVE', deletedAt: new Date() } });
+	if (result.count === 0) throw new NotFoundError('El capítulo solicitado no existe.');
+};
+
+export const getVerses = async (chapterId: string) => {
+	const verses = await prisma.bibliaVerse.findMany({ where: { chapterId, status: 'ACTIVE', deletedAt: null }, select: { id: true, number: true, text: true, notes: true }, orderBy: { number: 'asc' } });
+	return verses;
+};
+
+export const createVerse = async (chapterId: string, data: { number: number; text: string; notes?: string }) => {
+	const chapter = await prisma.bibliaChapter.findFirst({ where: { id: chapterId, status: 'ACTIVE', deletedAt: null }, select: { id: true } });
+	if (!chapter) throw new NotFoundError('El capítulo solicitado no existe.');
+	return prisma.bibliaVerse.create({ data: { chapterId, ...data }, select: { id: true, number: true, text: true } });
+};
+
+export const updateVerse = async (verseId: string, data: Partial<Prisma.BibliaVerseUpdateInput>) => {
+	const current = await prisma.bibliaVerse.findFirst({ where: { id: verseId, deletedAt: null } });
+	if (!current) throw new NotFoundError('El versículo solicitado no existe.');
+	return prisma.bibliaVerse.update({ where: { id: verseId }, data, select: { id: true, number: true, text: true } });
+};
+
+export const deactivateVerse = async (verseId: string): Promise<void> => {
+	const result = await prisma.bibliaVerse.updateMany({ where: { id: verseId, deletedAt: null }, data: { status: 'INACTIVE', deletedAt: new Date() } });
+	if (result.count === 0) throw new NotFoundError('El versículo solicitado no existe.');
+};
+
+// --- Favorites ---
+export const addFavorite = async (userId: string, resource: string, resourceId: string) => {
+	return prisma.bibliaFavorite.create({ data: { userId, resource, resourceId }, select: { id: true, resource: true, resourceId: true, createdAt: true } });
+};
+
+export const removeFavorite = async (userId: string, resource: string, resourceId: string) => {
+	await prisma.bibliaFavorite.deleteMany({ where: { userId, resource, resourceId } });
+};
+
+export const getFavorites = async (userId: string) => {
+	return prisma.bibliaFavorite.findMany({ where: { userId }, select: { id: true, resource: true, resourceId: true, createdAt: true }, orderBy: { createdAt: 'desc' } });
+};
+
+// --- Reading plans ---
+export const createReadingPlan = async (userId: string, data: { name: string; items: unknown; startDate?: string; endDate?: string }) => {
+	return prisma.bibliaReadingPlan.create({ data: { userId, name: data.name, items: data.items as Prisma.InputJsonValue, startDate: data.startDate ? new Date(data.startDate) : undefined, endDate: data.endDate ? new Date(data.endDate) : undefined }, select: { id: true, name: true, items: true, startDate: true, endDate: true, createdAt: true } });
+};
+
+export const getReadingPlans = async (userId: string) => {
+	return prisma.bibliaReadingPlan.findMany({ where: { userId }, select: { id: true, name: true, items: true, startDate: true, endDate: true, status: true, createdAt: true }, orderBy: { createdAt: 'desc' } });
+};
+
+export const deleteReadingPlan = async (planId: string) => {
+	await prisma.bibliaReadingPlan.updateMany({ where: { id: planId }, data: { status: 'INACTIVE' } });
+};

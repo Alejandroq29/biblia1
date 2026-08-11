@@ -15,6 +15,32 @@ export const bibliaKidsService = {
 	createGame: bibliaKidsData.createGame,
 	updateGame: bibliaKidsData.updateGame,
 	deactivateGame: bibliaKidsData.deactivateGame,
+
+	// Biblia resources
+	getBooks: bibliaKidsData.getBooks,
+	getBook: bibliaKidsData.getBook,
+	createBook: bibliaKidsData.createBook,
+	updateBook: bibliaKidsData.updateBook,
+	deactivateBook: bibliaKidsData.deactivateBook,
+
+	getChapters: bibliaKidsData.getChapters,
+	createChapter: bibliaKidsData.createChapter,
+	updateChapter: bibliaKidsData.updateChapter,
+	deactivateChapter: bibliaKidsData.deactivateChapter,
+
+	getVerses: bibliaKidsData.getVerses,
+	createVerse: bibliaKidsData.createVerse,
+	updateVerse: bibliaKidsData.updateVerse,
+	deactivateVerse: bibliaKidsData.deactivateVerse,
+
+	// Favorites & reading plans
+	addFavorite: bibliaKidsData.addFavorite,
+	removeFavorite: bibliaKidsData.removeFavorite,
+	getFavorites: bibliaKidsData.getFavorites,
+
+	createReadingPlan: bibliaKidsData.createReadingPlan,
+	getReadingPlans: bibliaKidsData.getReadingPlans,
+	deleteReadingPlan: bibliaKidsData.deleteReadingPlan,
 	createAttempt: async (
 		userId: string,
 		data: Parameters<typeof bibliaKidsData.createAttempt>[1],

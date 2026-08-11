@@ -20,3 +20,53 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+
+  db:
+    image: postgres:15-alpine
+    container_name: biblia-kids-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: biblia
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: biblia-kids-redis
+    ports:
+      - '6379:6379'
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: biblia-kids-app
+    env_file: .env.docker
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app:cached
+    depends_on:
+      - db
+      - redis
+      - keycloak
+    command: ["yarn", "dev", "-H", "0.0.0.0"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: biblia-kids-worker
+    env_file: .env.docker
+    volumes:
+      - ./:/app:cached
+    depends_on:
+      - db
+      - redis
+    command: ["yarn", "worker:biblia-kids:attempt"]
+
+volumes:
+  db-data:

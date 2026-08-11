@@ -1,0 +1,9 @@
+- [ ] Añadir modelos Prisma (books, chapters, verses, favorites, reading_plans)
+- [ ] Implementar queries en `database/biblia-kids`
+- [ ] Extender `services/biblia-kids` con nuevas funciones de negocio
+- [ ] Añadir validaciones Zod en `validations/biblia-kids` para nuevos endpoints
+- [ ] Crear rutas API en `pages/api/biblia-kids` para libros, capítulos, versículos, favoritos, planes de lectura
+- [ ] Integrar la sincronización de perfil de usuario con Keycloak
+- [ ] Añadir tests unitarios e integración
+- [ ] Registrar OpenAPI en `documentation/schemas/biblia-kids.ts`
+- [ ] Ejecutar checks: lint, typecheck, test, build

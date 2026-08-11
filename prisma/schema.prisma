@@ -70,6 +70,8 @@ model User {
   userRoles    UserRole[]
   bibliaAttempts BibliaGameAttempt[]
   bibliaProgress BibliaProgress[]
+  bibliaFavorites BibliaFavorite[]
+  bibliaReadingPlans BibliaReadingPlan[]
 
   @@map("users")
 }
@@ -349,4 +351,94 @@ model BibliaProgress {
   @@id([userId, storyId, levelId])
   @@index([userId, completed])
   @@map("biblia_progress")
+}
+
+// Recursos bíblicos estructurados
+model BibliaBook {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code      String      @unique @db.VarChar(80)
+  title     String      @db.VarChar(250)
+  testament String?     @db.VarChar(20)
+  summary   String?     @db.Text
+  status    BibliaStatus @default(ACTIVE)
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime?   @map("deleted_at") @db.Timestamptz
+
+  chapters  BibliaChapter[]
+
+  @@index([code])
+  @@index([status, deletedAt])
+  @@map("biblia_books")
+}
+
+model BibliaChapter {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId    String      @map("book_id") @db.Uuid
+  number    Int
+  title     String?     @db.VarChar(250)
+  summary   String?     @db.Text
+  status    BibliaStatus @default(ACTIVE)
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt DateTime?   @map("deleted_at") @db.Timestamptz
+
+  book      BibliaBook  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  verses    BibliaVerse[]
+
+  @@unique([bookId, number])
+  @@index([bookId])
+  @@index([status, deletedAt])
+  @@map("biblia_chapters")
+}
+
+model BibliaVerse {
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chapterId  String      @map("chapter_id") @db.Uuid
+  number     Int
+  text       String      @db.Text
+  notes      String?     @db.Text
+  status     BibliaStatus @default(ACTIVE)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt  DateTime?   @map("deleted_at") @db.Timestamptz
+
+  chapter    BibliaChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, number])
+  @@index([chapterId])
+  @@index([status, deletedAt])
+  @@map("biblia_verses")
+}
+
+model BibliaFavorite {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  resource   String    @db.VarChar(100)
+  resourceId String    @map("resource_id") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@map("biblia_favorites")
+}
+
+model BibliaReadingPlan {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  name      String    @db.VarChar(180)
+  items     Json
+  startDate DateTime?
+  endDate   DateTime?
+  status    BibliaStatus @default(ACTIVE)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@map("biblia_reading_plans")
 }

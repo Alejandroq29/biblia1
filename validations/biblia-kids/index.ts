@@ -99,3 +99,31 @@ export type CreateGame = z.infer<typeof createGameSchema>;
 export type UpdateGame = z.infer<typeof updateGameSchema>;
 export type CreateAttempt = z.infer<typeof createAttemptSchema>;
 export type ProgressQuery = z.infer<typeof progressQuerySchema>;
+
+// --- Books / Chapters / Verses / Favorites / Reading Plans ---
+export const bookQuerySchema = paginationSchema.extend({ search: z.string().max(250).optional() });
+export const bookParamsSchema = z.object({ bookId: z.string().uuid() });
+export const createBookSchema = z.object({ code: z.string().trim().max(80), title: z.string().trim().min(1).max(250), testament: z.string().max(20).optional(), summary: z.string().max(2000).optional() });
+export const updateBookSchema = createBookSchema.partial().extend({ status: statusSchema.optional() });
+
+export const chapterParamsSchema = z.object({ chapterId: z.string().uuid() });
+export const createChapterSchema = z.object({ bookId: z.string().uuid(), number: z.number().int().min(1), title: z.string().max(250).optional(), summary: z.string().max(2000).optional() });
+export const updateChapterSchema = createChapterSchema.partial().extend({ status: statusSchema.optional() });
+
+export const verseParamsSchema = z.object({ verseId: z.string().uuid() });
+export const createVerseSchema = z.object({ chapterId: z.string().uuid(), number: z.number().int().min(1), text: z.string().min(1), notes: z.string().max(2000).optional() });
+export const updateVerseSchema = createVerseSchema.partial().extend({ status: statusSchema.optional() });
+
+export const favoriteSchema = z.object({ resource: z.string().trim().min(1).max(100), resourceId: z.string().uuid() });
+
+export const createReadingPlanSchema = z.object({ name: z.string().trim().min(1).max(180), items: z.any(), startDate: z.string().datetime().optional(), endDate: z.string().datetime().optional() });
+
+export type BookQuery = z.infer<typeof bookQuerySchema>;
+export type CreateBook = z.infer<typeof createBookSchema>;
+export type UpdateBook = z.infer<typeof updateBookSchema>;
+export type CreateChapter = z.infer<typeof createChapterSchema>;
+export type UpdateChapter = z.infer<typeof updateChapterSchema>;
+export type CreateVerse = z.infer<typeof createVerseSchema>;
+export type UpdateVerse = z.infer<typeof updateVerseSchema>;
+export type Favorite = z.infer<typeof favoriteSchema>;
+export type CreateReadingPlan = z.infer<typeof createReadingPlanSchema>;
