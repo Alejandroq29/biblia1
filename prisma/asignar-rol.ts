@@ -3,14 +3,14 @@ import { prisma } from '@/database/client';
 /**
  * Asigna un rol a un usuario respetando el ALCANCE de la asignacion.
  *
- *   yarn asignar-rol --email futbolista@canchago.local --rol futbolista
- *   yarn asignar-rol --email gestor@canchago.local     --rol gestor-de-cancha
- *   yarn asignar-rol --email gestor@canchago.local     --rol gestor-de-cancha --sede <venueId>
+ *   yarn asignar-rol --email futbolista@biblia1.local --rol futbolista
+ *   yarn asignar-rol --email gestor@biblia1.local     --rol gestor-de-biblia
+ *   yarn asignar-rol --email gestor@biblia1.local     --rol gestor-de-biblia --sede <venueId>
  *
  * Se usa este script y no POST /api/users/:userId/roles porque ese endpoint
  * crea el UserRole sin organizationId ni venueId: no sabe expresar el alcance.
  *
- * El usuario debe existir ya en Canchago, y solo existe despues de su PRIMER LOGIN
+ * El usuario debe existir ya en Biblia1, y solo existe despues de su PRIMER LOGIN
  * (lo crea el callback via findOrSyncByOAuth). Ese es el orden correcto.
  */
 type Args = {
@@ -64,7 +64,7 @@ const main = async (): Promise<void> => {
 
 	if (!user) {
 		throw new Error(
-			`No existe el usuario ${args.email} en Canchago. Debe iniciar sesion al menos una vez: el callback lo crea automaticamente.`,
+			`No existe el usuario ${args.email} en Biblia1. Debe iniciar sesion al menos una vez: el callback lo crea automaticamente.`,
 		);
 	}
 
@@ -85,7 +85,7 @@ const main = async (): Promise<void> => {
 
 	// Alcance de la asignacion:
 	//  - Rol global (Futbolista, Administrador) -> sin organizacion: vale en toda la plataforma.
-	//  - Rol de tenant (Gestor de Cancha)       -> la organizacion dueña del rol, salvo que se indique otra.
+	//  - Rol de tenant (Gestor de biblia)       -> la organizacion dueña del rol, salvo que se indique otra.
 	const organizationId = args.organizacion ?? role.organizationId;
 	const venueId = args.sede ?? null;
 

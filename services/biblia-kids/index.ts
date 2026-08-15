@@ -7,10 +7,12 @@ export const bibliaKidsService = {
 	createStory: bibliaKidsData.createStory,
 	updateStory: bibliaKidsData.updateStory,
 	deactivateStory: bibliaKidsData.deactivateStory,
+	getLevel: bibliaKidsData.getLevel,
 	getLevels: bibliaKidsData.getLevels,
 	createLevel: bibliaKidsData.createLevel,
 	updateLevel: bibliaKidsData.updateLevel,
 	deactivateLevel: bibliaKidsData.deactivateLevel,
+	getGame: bibliaKidsData.getGame,
 	getGames: bibliaKidsData.getGames,
 	createGame: bibliaKidsData.createGame,
 	updateGame: bibliaKidsData.updateGame,
@@ -23,11 +25,13 @@ export const bibliaKidsService = {
 	updateBook: bibliaKidsData.updateBook,
 	deactivateBook: bibliaKidsData.deactivateBook,
 
+	getChapter: bibliaKidsData.getChapter,
 	getChapters: bibliaKidsData.getChapters,
 	createChapter: bibliaKidsData.createChapter,
 	updateChapter: bibliaKidsData.updateChapter,
 	deactivateChapter: bibliaKidsData.deactivateChapter,
 
+	getVerse: bibliaKidsData.getVerse,
 	getVerses: bibliaKidsData.getVerses,
 	createVerse: bibliaKidsData.createVerse,
 	updateVerse: bibliaKidsData.updateVerse,
@@ -39,7 +43,9 @@ export const bibliaKidsService = {
 	getFavorites: bibliaKidsData.getFavorites,
 
 	createReadingPlan: bibliaKidsData.createReadingPlan,
+	getReadingPlan: bibliaKidsData.getReadingPlan,
 	getReadingPlans: bibliaKidsData.getReadingPlans,
+	updateReadingPlan: bibliaKidsData.updateReadingPlan,
 	deleteReadingPlan: bibliaKidsData.deleteReadingPlan,
 	createAttempt: async (
 		userId: string,

@@ -19,7 +19,7 @@ type RoleSeed = {
 const ROLES: RoleSeed[] = [
 	{
 		name: 'Futbolista',
-		description: 'Reserva canchas. No pertenece a una organizacion: puede jugar en cualquiera.',
+		description: 'Reserva biblia. No pertenece a una organizacion: puede jugar en cualquiera.',
 		global: true,
 	},
 	{
@@ -28,8 +28,8 @@ const ROLES: RoleSeed[] = [
 		global: true,
 	},
 	{
-		name: 'Gestor de Cancha',
-		description: 'Gestiona las canchas y reservas de la organizacion a la que pertenece.',
+		name: 'Gestor de biblia',
+		description: 'Gestiona las biblias y reservas de la organizacion a la que pertenece.',
 		global: false,
 	},
 ];
@@ -38,7 +38,7 @@ const toCode = (name: string): string => name.toLowerCase().replace(/\s+/gu, '-'
 
 const resolveOrganization = async () => {
 	const preferred = await prisma.organization.findFirst({
-		where: { name: 'Cancha 2', deletedAt: null },
+		where: { name: 'biblia1', deletedAt: null },
 	});
 
 	if (preferred) {
@@ -55,7 +55,7 @@ const resolveOrganization = async () => {
 	}
 
 	return prisma.organization.create({
-		data: { name: 'Canchago Demo', status: 'ACTIVE' },
+		data: { name: 'Biblia1 Demo', status: 'ACTIVE' },
 	});
 };
 

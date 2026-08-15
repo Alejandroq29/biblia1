@@ -10,23 +10,29 @@ import { favoriteSchema } from '@/validations/biblia-kids';
 
 const handler = createRouter<NextApiRequest, NextApiResponse>();
 handler.use(auth).get(access('biblia-kids.favorites.read'), async (req, res) => {
-  if (!req.user) throw new Error('Authenticated user was not attached to the request.');
-  res.status(200).json({ data: await bibliaKidsService.getFavorites(req.user.id) });
+	if (!req.user) throw new Error('Authenticated user was not attached to the request.');
+	res.status(200).json({ data: await bibliaKidsService.getFavorites(req.user.id) });
 });
 
 handler.use(auth).post(access('biblia-kids.favorites.manage'), async (req, res) => {
-  const parsed = favoriteSchema.safeParse(req.body);
-  throwValidationError(parsed);
-  if (!req.user) throw new Error('Authenticated user was not attached to the request.');
-  res.status(201).json({ data: await bibliaKidsService.addFavorite(req.user.id, parsed.data.resource, parsed.data.resourceId) });
+	const parsed = favoriteSchema.safeParse(req.body);
+	throwValidationError(parsed);
+	if (!req.user) throw new Error('Authenticated user was not attached to the request.');
+	res.status(201).json({
+		data: await bibliaKidsService.addFavorite(
+			req.user.id,
+			parsed.data.resource,
+			parsed.data.resourceId,
+		),
+	});
 });
 
 handler.use(auth).delete(access('biblia-kids.favorites.manage'), async (req, res) => {
-  const parsed = favoriteSchema.safeParse(req.body);
-  throwValidationError(parsed);
-  if (!req.user) throw new Error('Authenticated user was not attached to the request.');
-  await bibliaKidsService.removeFavorite(req.user.id, parsed.data.resource, parsed.data.resourceId);
-  res.status(204).end();
+	const parsed = favoriteSchema.safeParse(req.body);
+	throwValidationError(parsed);
+	if (!req.user) throw new Error('Authenticated user was not attached to the request.');
+	await bibliaKidsService.removeFavorite(req.user.id, parsed.data.resource, parsed.data.resourceId);
+	res.status(204).end();
 });
 
 export default handler.handler(routerOptions);

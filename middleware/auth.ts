@@ -17,7 +17,7 @@ export const auth = async (
 			sessionId: 'dev-session',
 			user: {
 				id: 'dev-user',
-				email: 'dev@canchago.local',
+				email: 'dev@biblia1.local',
 				name: 'Development User',
 				roles: [],
 				permissions: [],

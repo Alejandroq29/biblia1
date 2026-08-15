@@ -1,4 +1,4 @@
-# Guía de clase — Autenticación y Autorización en Canchago
+# Guía de clase — Autenticación y Autorización en bilia
 
 > Todo lo de abajo fue ejecutado y verificado contra la API real. No hay pseudocódigo.
 
@@ -6,17 +6,17 @@
 
 ## Idea central que deben entender los alumnos
 
-Canchago **nunca ve la contraseña**. No existe un endpoint que reciba usuario y clave. El backend delega la identidad a un **Identity Provider** (Keycloak) mediante OAuth 2.0 Authorization Code + PKCE:
+biblia **nunca ve la contraseña**. No existe un endpoint que reciba usuario y clave. El backend delega la identidad a un **Identity Provider** (Keycloak) mediante OAuth 2.0 Authorization Code + PKCE:
 
 ```
-Navegador          Canchago (backend)              Keycloak (IdP)
+Navegador          biblia (backend)              Keycloak (IdP)
     │                     │                             │
     │  GET /api/auth/login│                             │
     ├────────────────────>│  genera state + PKCE        │
     │                     │  los guarda en cookie temporal cifrada
     │<────────302─────────┤                             │
     │                                                   │
-    │  el usuario tipea su clave AQUÍ, no en Canchago   │
+    │  el usuario tipea su clave AQUÍ, no esta registado│
     ├──────────────────────────────────────────────────>│
     │<─────────────302 con ?code=… &state=… ────────────┤
     │                     │                             │

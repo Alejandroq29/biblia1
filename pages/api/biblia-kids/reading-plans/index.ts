@@ -10,22 +10,27 @@ import { createReadingPlanSchema } from '@/validations/biblia-kids';
 
 const handler = createRouter<NextApiRequest, NextApiResponse>();
 handler.use(auth).get(access('biblia-kids.readingplans.read'), async (req, res) => {
-  if (!req.user) throw new Error('Authenticated user was not attached to the request.');
-  res.status(200).json({ data: await bibliaKidsService.getReadingPlans(req.user.id) });
+	if (!req.user) throw new Error('Authenticated user was not attached to the request.');
+	res.status(200).json({ data: await bibliaKidsService.getReadingPlans(req.user.id) });
 });
 
 handler.use(auth).post(access('biblia-kids.readingplans.manage'), async (req, res) => {
-  const parsed = createReadingPlanSchema.safeParse(req.body);
-  throwValidationError(parsed);
-  if (!req.user) throw new Error('Authenticated user was not attached to the request.');
-  res.status(201).json({ data: await bibliaKidsService.createReadingPlan(req.user.id, parsed.data) });
+	const parsed = createReadingPlanSchema.safeParse(req.body);
+	throwValidationError(parsed);
+	if (!req.user) throw new Error('Authenticated user was not attached to the request.');
+	res
+		.status(201)
+		.json({ data: await bibliaKidsService.createReadingPlan(req.user.id, parsed.data) });
 });
 
 handler.use(auth).delete(access('biblia-kids.readingplans.manage'), async (req, res) => {
-  const planId = String(req.query.planId ?? '');
-  if (!planId) return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'planId is required' } });
-  await bibliaKidsService.deleteReadingPlan(planId);
-  res.status(204).end();
+	const planId = String(req.query.planId ?? '');
+	if (!planId)
+		return res
+			.status(400)
+			.json({ error: { code: 'VALIDATION_ERROR', message: 'planId is required' } });
+	await bibliaKidsService.deleteReadingPlan(planId);
+	res.status(204).end();
 });
 
 export default handler.handler(routerOptions);

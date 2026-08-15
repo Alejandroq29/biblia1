@@ -7,7 +7,7 @@ vi.hoisted(() => {
 		configurable: true,
 		enumerable: true,
 	});
-	process.env.DATABASE_URL = 'postgresql://user:password@localhost:5432/canchago?schema=public';
+	process.env.DATABASE_URL = 'postgresql://user:0960441361@localhost:5432/biblia1?schema=public';
 	process.env.APP_BASE_URL = 'http://localhost:3000';
 	process.env.OAUTH_PROVIDER_NAME = 'example-oauth';
 	process.env.OAUTH_AUTHORIZATION_URL = 'https://provider.example.com/oauth2/authorize';
@@ -21,8 +21,8 @@ vi.hoisted(() => {
 	process.env.OAUTH_PUBLIC_KEY_PEM =
 		'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsamplekey\n-----END PUBLIC KEY-----';
 	process.env.SESSION_SECRET = '0123456789abcdef0123456789abcdef';
-	process.env.SESSION_COOKIE_NAME = 'canchago_session';
-	process.env.SESSION_TEMP_COOKIE_NAME = 'canchago_oauth_state';
+	process.env.SESSION_COOKIE_NAME = 'biblia1_session';
+	process.env.SESSION_TEMP_COOKIE_NAME = 'biblia1_oauth_state';
 	process.env.SESSION_COOKIE_PATH = '/';
 	process.env.SESSION_COOKIE_MAX_AGE_SECONDS = '28800';
 	process.env.SESSION_TEMP_COOKIE_MAX_AGE_SECONDS = '600';

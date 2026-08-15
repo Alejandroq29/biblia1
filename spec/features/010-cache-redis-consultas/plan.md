@@ -13,13 +13,13 @@ No se elige read-through porque requeriría un proveedor que conozca cómo ejecu
 ```text
 API Route
   │ auth + access + Zod (siempre)
-  ▼
-Servicio ── cache-aside ──► lib/cache ──► Redis
+  
+Servicio ── cache-aside ── lib/cache ── Redis
   │               miss/error │
-  ▼                          │ hit
-database/ ──► Prisma ──► PostgreSQL
+                            │ hit
+database/ ── Prisma ── PostgreSQL
   │
-  └─ escritura confirmada ──► servicio incrementa generaciones
+  └─ escritura confirmada ── servicio incrementa generaciones
 ```
 
 Para autenticación se mantiene `database/sessions.findActive(sessionId)` en cada petición. Solo `database/users.getSessionUser(userId)`, que retorna identidad de presentación, roles y permisos, queda detrás de cache-aside mediante `sessionService.resolve()`. Redis nunca recibe `sealedTokens` ni `SessionPayload.tokens`.

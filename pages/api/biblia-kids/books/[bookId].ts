@@ -10,25 +10,27 @@ import { bookParamsSchema, updateBookSchema } from '@/validations/biblia-kids';
 
 const handler = createRouter<NextApiRequest, NextApiResponse>();
 handler.use(auth).get(access('biblia-kids.books.read'), async (req, res) => {
-  const parsed = bookParamsSchema.safeParse(req.query);
-  throwValidationError(parsed);
-  res.status(200).json({ data: await bibliaKidsService.getBook(parsed.data.bookId) });
+	const parsed = bookParamsSchema.safeParse(req.query);
+	throwValidationError(parsed);
+	res.status(200).json({ data: await bibliaKidsService.getBook(parsed.data.bookId) });
 });
 
 handler
-  .use(auth)
-  .patch(access('biblia-kids.books.manage'), async (req, res) => {
-    const params = bookParamsSchema.safeParse(req.query);
-    const body = updateBookSchema.safeParse(req.body);
-    throwValidationError(params);
-    throwValidationError(body);
-    res.status(200).json({ data: await bibliaKidsService.updateBook(params.data.bookId, body.data) });
-  })
-  .delete(access('biblia-kids.books.manage'), async (req, res) => {
-    const parsed = bookParamsSchema.safeParse(req.query);
-    throwValidationError(parsed);
-    await bibliaKidsService.deactivateBook(parsed.data.bookId);
-    res.status(204).end();
-  });
+	.use(auth)
+	.patch(access('biblia-kids.books.manage'), async (req, res) => {
+		const params = bookParamsSchema.safeParse(req.query);
+		const body = updateBookSchema.safeParse(req.body);
+		throwValidationError(params);
+		throwValidationError(body);
+		res
+			.status(200)
+			.json({ data: await bibliaKidsService.updateBook(params.data.bookId, body.data) });
+	})
+	.delete(access('biblia-kids.books.manage'), async (req, res) => {
+		const parsed = bookParamsSchema.safeParse(req.query);
+		throwValidationError(parsed);
+		await bibliaKidsService.deactivateBook(parsed.data.bookId);
+		res.status(204).end();
+	});
 
 export default handler.handler(routerOptions);

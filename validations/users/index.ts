@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { VALIDATION_MESSAGES } from '../schemas';
 
-const ALLOWED_ORDER_BY = ['name', 'email', 'createdAt'] as const;
+const ALLOWED_ORDER_BY = ['email', 'createdAt'] as const;
 const ALLOWED_ORDER = ['asc', 'desc'] as const;
 
 export const createUserSchema = z.object({
@@ -14,8 +14,6 @@ export const createUserSchema = z.object({
 		.string()
 		.min(1, VALIDATION_MESSAGES.REQUIRED)
 		.max(100, VALIDATION_MESSAGES.MAX_LENGTH(100)),
-	organizationId: z.string().uuid(VALIDATION_MESSAGES.UUID),
-	roleIds: z.array(z.string().uuid(VALIDATION_MESSAGES.UUID)).optional(),
 });
 
 export const updateUserSchema = createUserSchema.partial();
@@ -28,7 +26,6 @@ export const userQuerySchema = z.object({
 		.min(1, VALIDATION_MESSAGES.MIN_VALUE(1))
 		.max(100, VALIDATION_MESSAGES.MAX_VALUE(100))
 		.optional(),
-	organizationId: z.string().uuid(VALIDATION_MESSAGES.UUID).optional(),
 	active: z.coerce.boolean().optional(),
 	search: z.string().max(255, VALIDATION_MESSAGES.MAX_LENGTH(255)).optional(),
 	orderBy: z.enum(ALLOWED_ORDER_BY).optional(),

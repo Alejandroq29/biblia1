@@ -1,6 +1,6 @@
-# Copilot Instructions — Canchago
+# Copilot Instructions — biblia1
 
-Canchago es un backend SaaS multi-tenant para gestión de espacios deportivos. Es **exclusivamente API REST** — sin frontend, sin páginas React, sin CSS, sin componentes UI.
+Biblia1 es un backend SaaS multi-tenant para gestión de espacios deportivos. Es **exclusivamente API REST** — sin frontend, sin páginas React, sin CSS, sin componentes UI.
 
 ## Stack obligatorio
 

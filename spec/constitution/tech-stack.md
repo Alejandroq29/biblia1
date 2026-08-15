@@ -20,7 +20,7 @@ _Cómo está construido el proyecto y las reglas que todo el código debe respet
 
 - **Sesiones:** cookies cifradas y firmadas mediante `@hapi/iron`.
 
-- **Autorización:** control basado en roles y permisos internos.
+- **Autorización:** control basado en permisos simples por usuario (sin roles ni organizaciones).
 
 - **Tokens:** JWT para integraciones entre sistemas; se prefieren algoritmos asimétricos como `RS256` o `ES256`.
 

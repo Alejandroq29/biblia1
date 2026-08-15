@@ -65,14 +65,23 @@ const envSchema = z.object({
 
 export type AppEnv = z.infer<typeof envSchema>;
 
-let cachedEnv: AppEnv | null = null;
+export const getEnv = (): AppEnv => envSchema.parse(process.env);
 
-export const getEnv = (): AppEnv => {
-	if (!cachedEnv) {
-		cachedEnv = envSchema.parse(process.env);
-	}
-
-	return cachedEnv;
-};
-
-export const env = getEnv();
+export const env = new Proxy({} as AppEnv, {
+	get(_target, prop: string | symbol) {
+		const value = getEnv()[prop as keyof AppEnv];
+		return value;
+	},
+	has(_target, prop: string | symbol) {
+		return prop in getEnv();
+	},
+	ownKeys() {
+		return Reflect.ownKeys(getEnv());
+	},
+	getOwnPropertyDescriptor() {
+		return {
+			enumerable: true,
+			configurable: true,
+		};
+	},
+});

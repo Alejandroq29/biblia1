@@ -8,7 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-# Agent Constitution — Canchago
+# Agent Constitution — Biblia1
 
 > **Leer esto antes de tocar cualquier archivo.** Este documento es la ley para agentes IA en este repositorio. Si algo aquí contradice tu conocimiento general de Next.js, Node o TypeScript — **este documento gana**.
 
@@ -16,7 +16,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## 1. Contexto del proyecto
 
-Canchago es un **backend SaaS multi-tenant** para gestión y agendamiento de espacios deportivos. Exclusivamente API REST — **cero frontend, cero páginas visuales, cero React fuera de lo que Next.js exige internamente**.
+Biblia es un **backend SaaS multi-tenant** para gestión y agendamiento de espacios deportivos. Exclusivamente API REST — **cero frontend, cero páginas visuales, cero React fuera de lo que Next.js exige internamente**.
 
 Lee `spec/constitution/mission.md` para entender qué construimos y para quién.  
 Lee `spec/constitution/tech-stack.md` para las reglas técnicas completas.  

@@ -28,6 +28,5 @@ Biblia Kids es un backend SaaS modular que administra participantes, historias b
 
 ## Qué NO es
 
-- No es una aplicación Flutter ni incluye pantallas, componentes visuales o código frontend.
-- No es una red social, sistema de mensajería ni plataforma de pagos.
+- No es una aplicación Flutter ni incluye pantallas, componentes visuales o código frontend.- No es una red social, sistema de mensajería ni plataforma de pagos.
 - No reemplaza los mecanismos legales de consentimiento parental; ese cumplimiento requiere una feature específica antes de producción.
