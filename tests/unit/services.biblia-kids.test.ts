@@ -6,7 +6,7 @@ vi.mock('@/database/biblia-kids', async () => {
 
 	return {
 		...actual,
-		createAttempt: vi.fn(async (userId: string, data: any) => ({
+		createAttempt: vi.fn(async (userId: string, data: { gameId: string; score: number }) => ({
 			id: 'attempt-1',
 			gameId: data.gameId,
 			storyId: 'story-1',

@@ -12,13 +12,13 @@ const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(access('biblia-kids.stories.read'), async (req, res): Promise<void> => {
-		const parsed = storyParamsSchema.safeParse(req.query);
+	.get(access('historias.read'), async (req, res): Promise<void> => {
+		const parsed = storyParamsSchema.safeParse({ storyId: req.query.historiaId });
 		throwValidationError(parsed);
 		res.status(200).json({ data: await bibliaKidsService.getStory(parsed.data.storyId) });
 	})
-	.patch(access('biblia-kids.stories.manage'), async (req, res): Promise<void> => {
-		const params = storyParamsSchema.safeParse(req.query);
+	.patch(access('historias.manage'), async (req, res): Promise<void> => {
+		const params = storyParamsSchema.safeParse({ storyId: req.query.historiaId });
 		const body = updateStorySchema.safeParse(req.body);
 		throwValidationError(params);
 		throwValidationError(body);
@@ -26,8 +26,8 @@ handler
 			.status(200)
 			.json({ data: await bibliaKidsService.updateStory(params.data.storyId, body.data) });
 	})
-	.delete(access('biblia-kids.stories.manage'), async (req, res): Promise<void> => {
-		const parsed = storyParamsSchema.safeParse(req.query);
+	.delete(access('historias.manage'), async (req, res): Promise<void> => {
+		const parsed = storyParamsSchema.safeParse({ storyId: req.query.historiaId });
 		throwValidationError(parsed);
 		await bibliaKidsService.deactivateStory(parsed.data.storyId);
 		res.status(204).end();

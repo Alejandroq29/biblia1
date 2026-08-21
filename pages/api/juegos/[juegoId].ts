@@ -12,13 +12,13 @@ const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(access('biblia-kids.games.read'), async (req, res): Promise<void> => {
-		const parsed = gameParamsSchema.safeParse(req.query);
+	.get(access('juegos.read'), async (req, res): Promise<void> => {
+		const parsed = gameParamsSchema.safeParse({ gameId: req.query.juegoId });
 		throwValidationError(parsed);
 		res.status(200).json({ data: await bibliaKidsService.getGame(parsed.data.gameId) });
 	})
-	.patch(access('biblia-kids.games.manage'), async (req, res): Promise<void> => {
-		const params = gameParamsSchema.safeParse(req.query);
+	.patch(access('juegos.manage'), async (req, res): Promise<void> => {
+		const params = gameParamsSchema.safeParse({ gameId: req.query.juegoId });
 		const body = updateGameSchema.safeParse(req.body);
 		throwValidationError(params);
 		throwValidationError(body);
@@ -26,8 +26,8 @@ handler
 			.status(200)
 			.json({ data: await bibliaKidsService.updateGame(params.data.gameId, body.data) });
 	})
-	.delete(access('biblia-kids.games.manage'), async (req, res): Promise<void> => {
-		const parsed = gameParamsSchema.safeParse(req.query);
+	.delete(access('juegos.manage'), async (req, res): Promise<void> => {
+		const parsed = gameParamsSchema.safeParse({ gameId: req.query.juegoId });
 		throwValidationError(parsed);
 		await bibliaKidsService.deactivateGame(parsed.data.gameId);
 		res.status(204).end();

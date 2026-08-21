@@ -1,78 +1,36 @@
 import { prisma } from '@/database/client';
 
 /**
- * Roles base del dominio.
- *
- * `organizationId` aqui define de quien es la DEFINICION del rol:
- *  - null  -> rol global de plataforma, disponible para cualquier tenant.
- *  - uuid  -> rol que pertenece a una organizacion concreta.
- *
- * El ALCANCE con el que se le asigna a un usuario es otra cosa distinta,
- * y vive en UserRole.organizationId / UserRole.venueId (ver prisma/asignar-rol.ts).
+ * Roles base del dominio Biblia Kids.
  */
 type RoleSeed = {
 	name: string;
 	description: string;
-	global: boolean;
 };
 
 const ROLES: RoleSeed[] = [
 	{
-		name: 'Futbolista',
-		description: 'Reserva biblia. No pertenece a una organizacion: puede jugar en cualquiera.',
-		global: true,
+		name: 'Estudiante',
+		description: 'Estudiante de Biblia Kids. Acceso a lectura, juegos y progreso.',
 	},
 	{
 		name: 'Administrador',
-		description: 'Administra la plataforma completa. No esta ligado a una organizacion.',
-		global: true,
+		description: 'Administra la plataforma completa Biblia Kids.',
 	},
 	{
-		name: 'Gestor de biblia',
-		description: 'Gestiona las biblias y reservas de la organizacion a la que pertenece.',
-		global: false,
+		name: 'Docente',
+		description: 'Gestiona historias, niveles y hace seguimiento de progreso.',
 	},
 ];
 
 const toCode = (name: string): string => name.toLowerCase().replace(/\s+/gu, '-');
 
-const resolveOrganization = async () => {
-	const preferred = await prisma.organization.findFirst({
-		where: { name: 'biblia1', deletedAt: null },
-	});
-
-	if (preferred) {
-		return preferred;
-	}
-
-	const anyOrganization = await prisma.organization.findFirst({
-		where: { deletedAt: null },
-		orderBy: { createdAt: 'asc' },
-	});
-
-	if (anyOrganization) {
-		return anyOrganization;
-	}
-
-	return prisma.organization.create({
-		data: { name: 'Biblia1 Demo', status: 'ACTIVE' },
-	});
-};
-
 const main = async (): Promise<void> => {
-	console.log('🌱 Sembrando roles base...\n');
-
-	const organization = await resolveOrganization();
-	console.log(`🏢 Organizacion para roles de tenant: ${organization.name} (${organization.id})\n`);
+	console.log('🌱 Sembrando roles base Biblia Kids...\n');
 
 	for (const role of ROLES) {
-		const organizationId = role.global ? null : organization.id;
-
-		// Busqueda explicita en vez de upsert: la restriccion @@unique([organizationId, name])
-		// NO protege a los roles globales, porque PostgreSQL trata cada NULL como distinto
-		// y permitiria insertar "Futbolista" global tantas veces como se ejecute la semilla.
 		const existing = await prisma.role.findFirst({
-			where: { organizationId, name: role.name, deletedAt: null },
+			where: { name: role.name, deletedAt: null },
 		});
 
 		if (existing) {
@@ -82,7 +40,6 @@ const main = async (): Promise<void> => {
 
 		const created = await prisma.role.create({
 			data: {
-				organizationId,
 				name: role.name,
 				code: toCode(role.name),
 				description: role.description,
@@ -90,8 +47,7 @@ const main = async (): Promise<void> => {
 			},
 		});
 
-		const scope = organizationId ? `organizacion ${organization.name}` : 'global';
-		console.log(`✅ Creado: ${role.name} [${scope}] (${created.id})`);
+		console.log(`✅ Creado: ${role.name} (${created.id})`);
 	}
 
 	console.log('\n✅ Roles base listos.');
@@ -100,9 +56,8 @@ const main = async (): Promise<void> => {
 };
 
 /**
- * El rol Administrador administra la plataforma completa, asi que recibe TODOS
- * los permisos del catalogo (los crea `yarn seed`). Sin este paso los roles
- * nacen sin permisos y cualquier endpoint protegido responde 403.
+ * El rol Administrador administra la plataforma completa, así que recibe TODOS
+ * los permisos del catálogo (los crea `yarn seed`).
  */
 const grantAllPermissionsToAdmin = async (): Promise<void> => {
 	const admin = await prisma.role.findFirst({
@@ -117,7 +72,7 @@ const grantAllPermissionsToAdmin = async (): Promise<void> => {
 	const permissions = await prisma.permission.findMany({ select: { id: true, code: true } });
 
 	if (permissions.length === 0) {
-		console.log('⚠️  El catalogo de permisos esta vacio. Corre `yarn seed` primero.');
+		console.log('⚠️  El catálogo de permisos está vacío. Corre `yarn seed` primero.');
 		return;
 	}
 

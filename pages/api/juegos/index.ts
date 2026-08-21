@@ -12,12 +12,12 @@ const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(access('biblia-kids.games.read'), async (req, res): Promise<void> => {
+	.get(access('juegos.read'), async (req, res): Promise<void> => {
 		const parsed = gameQuerySchema.safeParse(req.query);
 		throwValidationError(parsed);
 		res.status(200).json(await bibliaKidsService.getGames(parsed.data));
 	})
-	.post(access('biblia-kids.games.manage'), async (req, res): Promise<void> => {
+	.post(access('juegos.manage'), async (req, res): Promise<void> => {
 		const parsed = createGameSchema.safeParse(req.body);
 		throwValidationError(parsed);
 		res.status(201).json({ data: await bibliaKidsService.createGame(parsed.data) });

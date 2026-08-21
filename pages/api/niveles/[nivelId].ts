@@ -12,13 +12,13 @@ const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(access('biblia-kids.levels.read'), async (req, res): Promise<void> => {
-		const parsed = levelParamsSchema.safeParse(req.query);
+	.get(access('niveles.read'), async (req, res): Promise<void> => {
+		const parsed = levelParamsSchema.safeParse({ levelId: req.query.nivelId });
 		throwValidationError(parsed);
 		res.status(200).json({ data: await bibliaKidsService.getLevel(parsed.data.levelId) });
 	})
-	.patch(access('biblia-kids.levels.manage'), async (req, res): Promise<void> => {
-		const params = levelParamsSchema.safeParse(req.query);
+	.patch(access('niveles.manage'), async (req, res): Promise<void> => {
+		const params = levelParamsSchema.safeParse({ levelId: req.query.nivelId });
 		const body = updateLevelSchema.safeParse(req.body);
 		throwValidationError(params);
 		throwValidationError(body);
@@ -26,8 +26,8 @@ handler
 			.status(200)
 			.json({ data: await bibliaKidsService.updateLevel(params.data.levelId, body.data) });
 	})
-	.delete(access('biblia-kids.levels.manage'), async (req, res): Promise<void> => {
-		const parsed = levelParamsSchema.safeParse(req.query);
+	.delete(access('niveles.manage'), async (req, res): Promise<void> => {
+		const parsed = levelParamsSchema.safeParse({ levelId: req.query.nivelId });
 		throwValidationError(parsed);
 		await bibliaKidsService.deactivateLevel(parsed.data.levelId);
 		res.status(204).end();

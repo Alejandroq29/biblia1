@@ -12,12 +12,12 @@ const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(access('biblia-kids.levels.read'), async (req, res): Promise<void> => {
+	.get(access('niveles.read'), async (req, res): Promise<void> => {
 		const parsed = levelQuerySchema.safeParse(req.query);
 		throwValidationError(parsed);
 		res.status(200).json(await bibliaKidsService.getLevels(parsed.data));
 	})
-	.post(access('biblia-kids.levels.manage'), async (req, res): Promise<void> => {
+	.post(access('niveles.manage'), async (req, res): Promise<void> => {
 		const parsed = createLevelSchema.safeParse(req.body);
 		throwValidationError(parsed);
 		res.status(201).json({ data: await bibliaKidsService.createLevel(parsed.data) });

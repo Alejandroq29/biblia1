@@ -514,7 +514,7 @@ export const getBooks = async (filters: { page?: number; pageSize?: number; sear
 	}>(cacheKey);
 	if (cached) return cached;
 
-	const { skip, take, meta } = normalizePagination(filters as any);
+	const { skip, take, meta } = normalizePagination(filters);
 	const where: Prisma.BibliaBookWhereInput = {
 		status: 'ACTIVE',
 		deletedAt: null,

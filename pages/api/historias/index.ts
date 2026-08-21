@@ -12,12 +12,12 @@ const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(access('biblia-kids.stories.read'), async (req, res): Promise<void> => {
+	.get(access('historias.read'), async (req, res): Promise<void> => {
 		const parsed = storyQuerySchema.safeParse(req.query);
 		throwValidationError(parsed);
 		res.status(200).json(await bibliaKidsService.getStories(parsed.data));
 	})
-	.post(access('biblia-kids.stories.manage'), async (req, res): Promise<void> => {
+	.post(access('historias.manage'), async (req, res): Promise<void> => {
 		const parsed = createStorySchema.safeParse(req.body);
 		throwValidationError(parsed);
 		res.status(201).json({ data: await bibliaKidsService.createStory(parsed.data) });

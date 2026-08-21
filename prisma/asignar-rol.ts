@@ -1,23 +1,13 @@
 import { prisma } from '@/database/client';
 
 /**
- * Asigna un rol a un usuario respetando el ALCANCE de la asignacion.
+ * Asigna un rol a un usuario en Biblia Kids.
  *
- *   yarn asignar-rol --email futbolista@biblia1.local --rol futbolista
- *   yarn asignar-rol --email gestor@biblia1.local     --rol gestor-de-biblia
- *   yarn asignar-rol --email gestor@biblia1.local     --rol gestor-de-biblia --sede <venueId>
- *
- * Se usa este script y no POST /api/users/:userId/roles porque ese endpoint
- * crea el UserRole sin organizationId ni venueId: no sabe expresar el alcance.
- *
- * El usuario debe existir ya en Biblia1, y solo existe despues de su PRIMER LOGIN
- * (lo crea el callback via findOrSyncByOAuth). Ese es el orden correcto.
+ *   yarn asignar-rol --email estudiante@biblia1.local --rol estudiante
  */
 type Args = {
 	email: string;
 	rol: string;
-	organizacion?: string;
-	sede?: string;
 };
 
 const parseArgs = (argv: string[]): Args => {
@@ -44,16 +34,12 @@ const parseArgs = (argv: string[]): Args => {
 	const rol = values.get('rol');
 
 	if (!email || !rol) {
-		throw new Error(
-			'Uso: yarn asignar-rol --email <email> --rol <codigo-del-rol> [--organizacion <uuid>] [--sede <uuid>]',
-		);
+		throw new Error('Uso: yarn asignar-rol --email <email> --rol <codigo-del-rol>');
 	}
 
 	return {
 		email,
 		rol,
-		organizacion: values.get('organizacion'),
-		sede: values.get('sede'),
 	};
 };
 
@@ -64,7 +50,7 @@ const main = async (): Promise<void> => {
 
 	if (!user) {
 		throw new Error(
-			`No existe el usuario ${args.email} en Biblia1. Debe iniciar sesion al menos una vez: el callback lo crea automaticamente.`,
+			`No existe el usuario ${args.email} en Biblia Kids. Debe iniciar sesión al menos una vez: el callback lo crea automáticamente.`,
 		);
 	}
 
@@ -83,51 +69,22 @@ const main = async (): Promise<void> => {
 		);
 	}
 
-	// Alcance de la asignacion:
-	//  - Rol global (Futbolista, Administrador) -> sin organizacion: vale en toda la plataforma.
-	//  - Rol de tenant (Gestor de biblia)       -> la organizacion dueña del rol, salvo que se indique otra.
-	const organizationId = args.organizacion ?? role.organizationId;
-	const venueId = args.sede ?? null;
-
-	if (venueId) {
-		if (!organizationId) {
-			throw new Error('No se puede asignar una sede sin una organizacion.');
-		}
-
-		const venue = await prisma.venue.findFirst({
-			where: { id: venueId, organizationId, deletedAt: null },
-		});
-
-		if (!venue) {
-			throw new Error(
-				`La sede ${venueId} no existe o no pertenece a la organizacion ${organizationId}.`,
-			);
-		}
-	}
-
 	const existing = await prisma.userRole.findFirst({
-		where: { userId: user.id, roleId: role.id, organizationId, venueId },
+		where: { userId: user.id, roleId: role.id },
 	});
 
 	if (existing) {
-		console.log(
-			`⏭️  ${args.email} ya tiene el rol '${role.name}' con ese mismo alcance. Nada que hacer.`,
-		);
+		console.log(`⏭️  ${args.email} ya tiene el rol '${role.name}'. Nada que hacer.`);
 		return;
 	}
 
 	await prisma.userRole.create({
-		data: { userId: user.id, roleId: role.id, organizationId, venueId },
+		data: { userId: user.id, roleId: role.id },
 	});
 
-	const alcance = organizationId
-		? `organizacion ${organizationId}${venueId ? ` · sede ${venueId}` : ''}`
-		: 'global (toda la plataforma)';
-
 	console.log(`✅ Rol '${role.name}' asignado a ${args.email}`);
-	console.log(`   Alcance: ${alcance}`);
 	console.log(
-		'\n⚠️  La sesion se cifra en la cookie al iniciar sesion: cierra sesion y vuelve a entrar para que el rol aparezca en /api/auth/session.',
+		'\n⚠️  La sesión se cifra en la cookie al iniciar sesión: cierra sesión y vuelve a entrar para que el rol aparezca en /api/auth/session.',
 	);
 };
 

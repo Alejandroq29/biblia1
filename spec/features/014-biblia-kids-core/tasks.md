@@ -1,24 +1,18 @@
-# 014 · Biblia Kids — Núcleo educativo — Tareas
+# 014 · Biblia Kids — API educativa y transición de dominio — Tareas
 
-- [x] Confirmar que Biblia Kids reemplaza el proyecto anterior.
-- [x] Definir el modelo inicial de historias, niveles, juegos, preguntas, intentos y progreso.
-- [x] Actualizar misión, roadmap, nombre del paquete y título OpenAPI.
-- [x] Implementar modelos Prisma y migración SQL.
-- [x] Implementar schemas Zod y validaciones de entrada.
-- [x] Implementar queries Prisma y transacciones de progreso.
-- [x] Implementar servicios y endpoints REST protegidos.
-- [x] Registrar rutas y schemas en Swagger.
-- [ ] Añadir pruebas del módulo.
-- [ ] Ejecutar lint, typecheck, tests y build.
-
-## Documentación Swagger
-
-- [x] Crear `documentation/schemas/biblia-kids.ts`.
-- [x] Registrar los endpoints con `registry.registerPath()`.
-- [x] Exportar el módulo desde `documentation/schemas/index.ts`.
-- [ ] Verificar los endpoints en `GET /api/docs`.
+- [x] Confirmar el contrato de rutas en español y la eliminación del dominio Canchago.
+- [ ] Retirar rutas, documentación y módulos activos de organizaciones, sedes y canchas.
+- [ ] Recuperar RBAC global sin relaciones de organización ni sede.
+- [ ] Implementar rutas de usuarios y asignación de roles en español.
+- [ ] Implementar rutas de historias, niveles y juegos en español.
+- [ ] Implementar rutas de progresos y favoritos anidadas por usuario.
+- [ ] Implementar rutas de libros, capítulos y versículos conforme al contrato.
+- [ ] Implementar rutas de planes de lectura en español.
+- [ ] Actualizar los schemas y paths de Swagger.
+- [ ] Añadir y ejecutar pruebas de contratos, permisos y propiedad.
 
 ## Cierre
 
-- [ ] Validar todos los criterios de aceptación.
-- [ ] Mover la feature a “Hecho” en `spec/constitution/roadmap.md`.
+- [ ] Ejecutar `yarn lint`, `yarn typecheck`, `yarn test` y `yarn build`.
+- [ ] Validar todos los criterios de aceptación de `spec.md`.
+- [ ] Mover la feature a "Hecho" en `../../constitution/roadmap.md`.

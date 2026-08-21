@@ -10,8 +10,8 @@ import { verseParamsSchema } from '@/validations/biblia-kids';
 
 const handler = createRouter<NextApiRequest, NextApiResponse>();
 
-handler.use(auth).get(access('biblia-kids.verses.read'), async (req, res): Promise<void> => {
-	const parsed = verseParamsSchema.safeParse(req.query);
+handler.use(auth).get(access('libros.read'), async (req, res): Promise<void> => {
+	const parsed = verseParamsSchema.safeParse({ verseId: req.query.versiculoId });
 	throwValidationError(parsed);
 	res.status(200).json({ data: await bibliaKidsService.getVerse(parsed.data.verseId) });
 });

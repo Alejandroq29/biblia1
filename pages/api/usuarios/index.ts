@@ -1,31 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createRouter } from 'next-connect';
 
-import { auth } from '@/middleware/auth';
-import { routerOptions } from '@/lib/api/router-config';
-import { userService } from '@/services/users';
-import { userQuerySchema, createUserSchema } from '@/validations/users';
 import { throwValidationError } from '@/lib/errors/throw-validation-error';
+import { routerOptions } from '@/lib/api/router-config';
+import { access } from '@/middleware/access';
+import { auth } from '@/middleware/auth';
+import { userService } from '@/services/users';
+import { createUserSchema, userQuerySchema } from '@/validations/users';
 
 const handler = createRouter<NextApiRequest, NextApiResponse>();
 
 handler
 	.use(auth)
-	.get(async (req, res): Promise<void> => {
+	.get(access('usuarios.read'), async (req, res): Promise<void> => {
 		const parsed = userQuerySchema.safeParse(req.query);
 		throwValidationError(parsed);
-
-		const result = await userService.getAll(parsed.data);
-
-		res.status(200).json(result);
+		res.status(200).json(await userService.getAll(parsed.data));
 	})
-	.post(async (req, res): Promise<void> => {
+	.post(access('usuarios.manage'), async (req, res): Promise<void> => {
 		const parsed = createUserSchema.safeParse(req.body);
 		throwValidationError(parsed);
-
-		const user = await userService.create(parsed.data);
-
-		res.status(201).json({ data: user });
+		res.status(201).json({ data: await userService.create(parsed.data) });
 	});
 
 export default handler.handler(routerOptions);

@@ -69,17 +69,7 @@ export const update = async (userId: string, body: UpdateUserBody) => {
 	};
 };
 
-export const delete = async (userId: string) => {
-	const existing = await userData.record(userId).getUnique();
-
-	if (!existing) {
-		throw new NotFoundError('El usuario solicitado no existe.');
-	}
-
-	await userData.record(userId).remove();
-};
-
-export const remove = async (userId: string) => {
+export const remove = async (userId: string): Promise<void> => {
 	const existing = await userData.record(userId).getUnique();
 
 	if (!existing) {

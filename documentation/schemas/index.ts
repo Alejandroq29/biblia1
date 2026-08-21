@@ -4,6 +4,4 @@
 // export * from './auth';
 
 export * from './auth';
-export * from './users';
-export * from './roles-permisos';
-export * from './biblia-kids';
+export * from './biblia-kids-contract';

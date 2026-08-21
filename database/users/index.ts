@@ -52,6 +52,19 @@ const loadUser = async (userId: string) =>
 		where: { id: userId },
 		include: {
 			profile: true,
+			userRoles: {
+				where: { role: { deletedAt: null } },
+				include: {
+					role: {
+						include: {
+							rolePermissions: {
+								where: { granted: true },
+								include: { permission: true },
+							},
+						},
+					},
+				},
+			},
 		},
 	});
 
@@ -66,8 +79,17 @@ export const getSessionUser = async (userId: string): Promise<SessionUser | null
 		id: user.id,
 		email: user.email,
 		name: buildDisplayName(user.profile?.firstName, user.profile?.lastName, user.email),
-		roles: [],
-		permissions: [],
+		roles: user.userRoles.map(userRole => ({
+			id: userRole.role.id,
+			code: userRole.role.code,
+			name: userRole.role.name,
+		})),
+		permissions: user.userRoles.flatMap(userRole =>
+			userRole.role.rolePermissions.map(rolePermission => ({
+				id: rolePermission.permission.id,
+				code: rolePermission.permission.code,
+			})),
+		),
 	};
 };
 
@@ -110,8 +132,17 @@ export const findOrSyncByOAuth = async (
 				id: user.id,
 				email: user.email,
 				name: buildDisplayName(user.profile?.firstName, user.profile?.lastName, user.email),
-				roles: [],
-				permissions: [],
+				roles: user.userRoles.map(userRole => ({
+					id: userRole.role.id,
+					code: userRole.role.code,
+					name: userRole.role.name,
+				})),
+				permissions: user.userRoles.flatMap(userRole =>
+					userRole.role.rolePermissions.map(rolePermission => ({
+						id: rolePermission.permission.id,
+						code: rolePermission.permission.code,
+					})),
+				),
 			},
 		};
 	}
@@ -148,8 +179,17 @@ export const findOrSyncByOAuth = async (
 			id: user.id,
 			email: user.email,
 			name: buildDisplayName(user.profile?.firstName, user.profile?.lastName, user.email),
-			roles: [],
-			permissions: [],
+			roles: user.userRoles.map(userRole => ({
+				id: userRole.role.id,
+				code: userRole.role.code,
+				name: userRole.role.name,
+			})),
+			permissions: user.userRoles.flatMap(userRole =>
+				userRole.role.rolePermissions.map(rolePermission => ({
+					id: rolePermission.permission.id,
+					code: rolePermission.permission.code,
+				})),
+			),
 		},
 	};
 };
@@ -254,3 +294,41 @@ export const record = (userId: string) => ({
 			select: selectUserFields,
 		}),
 });
+
+export const getRolesByUserId = async (userId: string) =>
+	prisma.userRole.findMany({
+		where: { userId, role: { deletedAt: null } },
+		select: {
+			role: { select: { id: true, code: true, name: true, description: true } },
+		},
+	});
+
+export const assignRolesToUser = async (userId: string, roleIds: string[]): Promise<void> => {
+	await prisma.$transaction(async transaction => {
+		const roles = await transaction.role.findMany({
+			where: { id: { in: roleIds }, deletedAt: null },
+			select: { id: true },
+		});
+
+		if (roles.length !== roleIds.length) {
+			throw new ConflictError('Uno o más roles no existen o están inactivos.');
+		}
+
+		await transaction.userRole.deleteMany({ where: { userId } });
+		await transaction.userRole.createMany({
+			data: roleIds.map(roleId => ({ userId, roleId })),
+		});
+	});
+};
+
+export const addRoleToUser = async (userId: string, roleId: string): Promise<void> => {
+	await prisma.userRole.upsert({
+		where: { userId_roleId: { userId, roleId } },
+		create: { userId, roleId },
+		update: {},
+	});
+};
+
+export const removeRoleFromUser = async (userId: string, roleId: string): Promise<void> => {
+	await prisma.userRole.deleteMany({ where: { userId, roleId } });
+};

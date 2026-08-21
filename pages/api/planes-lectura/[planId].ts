@@ -3,7 +3,6 @@ import { createRouter } from 'next-connect';
 
 import { auth } from '@/middleware/auth';
 import { access } from '@/middleware/access';
-import { throwValidationError } from '@/lib/errors/throw-validation-error';
 import { routerOptions } from '@/lib/api/router-config';
 import { bibliaKidsService } from '@/services/biblia-kids';
 

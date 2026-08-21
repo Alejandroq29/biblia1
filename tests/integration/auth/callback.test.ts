@@ -19,8 +19,8 @@ vi.hoisted(() => {
 	process.env.OAUTH_SCOPE = 'openid email profile offline_access';
 	process.env.OAUTH_SUCCESS_REDIRECT_URL = 'http://localhost:3000/';
 	process.env.SESSION_SECRET = '0123456789abcdef0123456789abcdef';
-	process.env.SESSION_COOKIE_NAME = 'biblia1_session';
-	process.env.SESSION_TEMP_COOKIE_NAME = 'biblia1_oauth_state';
+	process.env.SESSION_COOKIE_NAME = 'biblia_kids_session';
+	process.env.SESSION_TEMP_COOKIE_NAME = 'biblia_kids_oauth_state';
 	process.env.SESSION_COOKIE_PATH = '/';
 	process.env.SESSION_COOKIE_MAX_AGE_SECONDS = '28800';
 	process.env.SESSION_TEMP_COOKIE_MAX_AGE_SECONDS = '600';
@@ -81,7 +81,7 @@ describe('auth callback route', () => {
 			{
 				method: 'GET',
 				url: '/api/auth/callback',
-				cookies: { canchago_oauth_state: cookie },
+				cookies: { biblia_kids_oauth_state: cookie },
 				query: { code: 'auth-code', state },
 				headers: {},
 			} as never,
@@ -100,7 +100,7 @@ describe('auth callback route', () => {
 		// ...y la cookie NO los lleva: sólo el id de sesión, muy por debajo del límite de 4096 bytes.
 		const setCookie = String(response.headers['Set-Cookie']);
 
-		expect(setCookie).toContain('canchago_session');
+		expect(setCookie).toContain('biblia_kids_session');
 		expect(setCookie).not.toContain('access-token');
 		expect(setCookie.length).toBeLessThan(4096);
 	});

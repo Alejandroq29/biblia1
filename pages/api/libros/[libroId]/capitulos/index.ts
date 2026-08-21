@@ -10,8 +10,8 @@ import { bookParamsSchema } from '@/validations/biblia-kids';
 
 const handler = createRouter<NextApiRequest, NextApiResponse>();
 
-handler.use(auth).get(access('biblia-kids.chapters.read'), async (req, res): Promise<void> => {
-	const parsed = bookParamsSchema.safeParse(req.query);
+handler.use(auth).get(access('libros.read'), async (req, res): Promise<void> => {
+	const parsed = bookParamsSchema.safeParse({ bookId: req.query.libroId });
 	throwValidationError(parsed);
 	res.status(200).json({ data: await bibliaKidsService.getChapters(parsed.data.bookId) });
 });

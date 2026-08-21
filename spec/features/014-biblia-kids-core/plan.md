@@ -1,33 +1,27 @@
-# 014 · Biblia Kids — Núcleo educativo — Plan
+# 014 · Biblia Kids — API educativa y transición de dominio — Plan
 
 ## Enfoque
 
-Biblia Kids reemplaza el dominio anterior y usa el monolito modular existente: TypeScript sobre Node.js/Next.js, API Routes, `next-connect`, Zod, Prisma y PostgreSQL. Flutter queda como cliente REST externo.
+Se consolida la API de Biblia Kids bajo nombres de recurso en español y Pages Router. La capa de datos conserva los modelos educativos existentes y recupera un RBAC global mínimo, sin ninguna relación multi-tenant. Las rutas no contendrán lógica de negocio: delegarán a validaciones, servicios y repositorios.
 
 ## Implementación
 
-1. Reemplazar la misión, el nombre del paquete y la información de OpenAPI.
-2. Añadir modelos Prisma para historias, niveles, asociaciones, juegos, preguntas, intentos y progreso.
-3. Crear la migración SQL y sembrar permisos `biblia-kids.*`.
-4. Crear validaciones Zod para entradas, parámetros y paginación.
-5. Encapsular queries y transacciones en `database/biblia-kids/`.
-6. Exponer servicios en `services/biblia-kids/`.
-7. Crear endpoints protegidos bajo `pages/api/biblia-kids/`.
-8. Registrar schemas y rutas en `documentation/schemas/biblia-kids.ts`.
-9. Añadir pruebas de validación, autorización, paginación y progreso.
-10. Ejecutar `yarn lint`, `yarn typecheck`, `yarn test` y `yarn build`.
-11. Marcar la feature como implementada y actualizar el roadmap.
+1. Revisar y retirar referencias funcionales a Canchago, organizaciones, sedes y canchas, sin reescribir migraciones históricas.
+2. Ajustar Prisma y la migración pendiente para crear `Role`, `Permission`, `UserRole` y `RolePermission` globales, sin organizaciones ni sedes.
+3. Implementar repositorios, servicios, validaciones y documentación de RBAC global.
+4. Sustituir rutas inglesas y `/biblia-kids/*` por el contrato español aprobado: `/usuarios`, `/historias`, `/niveles`, `/juegos`, `/libros`, `/capitulos` y `/planes-lectura`.
+5. Implementar las rutas anidadas de progreso, favoritos, capítulos y versículos con verificación de propiedad y autorización.
+6. Actualizar Swagger para que solo registre las rutas aprobadas.
+7. Añadir pruebas de contrato, autorización, paginación y propiedad de recursos.
+8. Ejecutar lint, typecheck, tests y build; actualizar el roadmap al terminar.
 
 ## Decisiones
 
-- **Backend en TypeScript/Next.js** — es el stack backend autorizado por la constitución; Flutter se integra como cliente.
-- **PostgreSQL mediante Prisma** — mantiene asociaciones y progreso con integridad referencial.
-- **Progreso separado de intentos** — el intento conserva historial y el progreso resume el estado actual.
-- **Desactivación en lugar de borrado** — evita perder referencias de contenido usado por participantes.
-- **Respuestas correctas privadas** — nunca se devuelven en consultas de juegos para impedir hacer trampa desde el cliente.
+- **Rutas en español sin alias** — evita duplicar contratos y sigue la nomenclatura solicitada.
+- **RBAC global** — Biblia Kids necesita roles y permisos, pero no la jerarquía de organización/sede del dominio anterior.
+- **Migraciones históricas intactas** — preservan la trazabilidad; solo se modifica la migración local pendiente si aún no fue aplicada.
 
 ## Riesgos
 
-- **Privacidad de menores** — se almacenan campos mínimos y se difiere consentimiento parental a la feature 015.
-- **Migraciones con historial existente** — la nueva migración es aditiva y no modifica migraciones aplicadas.
-- **Dependencias locales ausentes** — la validación requiere que el entorno pueda instalar Yarn y generar Prisma.
+- **Migración pendiente destructiva** — se revisará antes de aplicarla para no eliminar el RBAC requerido.
+- **Usuarios menores de edad** — los datos de perfil se mantienen mínimos; el consentimiento parental queda fuera de esta feature.

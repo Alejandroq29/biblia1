@@ -19,8 +19,8 @@ vi.hoisted(() => {
 	process.env.OAUTH_SCOPE = 'openid email profile offline_access';
 	process.env.OAUTH_SUCCESS_REDIRECT_URL = 'http://localhost:3000/';
 	process.env.SESSION_SECRET = '0123456789abcdef0123456789abcdef';
-	process.env.SESSION_COOKIE_NAME = 'biblia1_session';
-	process.env.SESSION_TEMP_COOKIE_NAME = 'biblia1_oauth_state';
+	process.env.SESSION_COOKIE_NAME = 'biblia_kids_session';
+	process.env.SESSION_TEMP_COOKIE_NAME = 'biblia_kids_oauth_state';
 	process.env.SESSION_COOKIE_PATH = '/';
 	process.env.SESSION_COOKIE_MAX_AGE_SECONDS = '28800';
 	process.env.SESSION_TEMP_COOKIE_MAX_AGE_SECONDS = '600';
@@ -40,7 +40,7 @@ describe('auth login route', () => {
 
 		expect(response.statusCode).toBe(302);
 		expect(response.redirectDestination).toContain('https://provider.example.com/oauth2/authorize');
-		expect(String(response.headers['Set-Cookie'])).toContain('canchago_oauth_state');
+		expect(String(response.headers['Set-Cookie'])).toContain('biblia_kids_oauth_state');
 		expect(String(response.headers['Set-Cookie'])).toContain('HttpOnly=true');
 	});
 });

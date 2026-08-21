@@ -46,16 +46,6 @@ const handleError = (err: unknown, _req: NextApiRequest, res: NextApiResponse): 
 	});
 };
 
-const STATUS_CODE_MAP: Record<number, string> = {
-	400: 'VALIDATION_ERROR',
-	401: 'UNAUTHORIZED',
-	403: 'FORBIDDEN',
-	404: 'NOT_FOUND',
-	409: 'CONFLICT',
-	422: 'BUSINESS_RULE_ERROR',
-	429: 'TOO_MANY_REQUESTS',
-};
-
 export const routerOptions = {
 	onError: handleError,
 
